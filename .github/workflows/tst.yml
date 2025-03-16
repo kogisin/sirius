@@ -1,0 +1,57 @@
+name: check_v1
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2.2.0
+        with:
+          args: --no-progress --accept 200,429 --exclude "http://localhost(:[0-9]+)?/" --exclude "enode://*" --exclude "http://127.0.0.1(:[0-9]+)?/" --verbose "**/*.md" "**/*.mdx" "**/*.tsx" "**/*.rs" "**/*.ts"
+
+  spellcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Codespell
+        run: pip install codespell
+
+      - name: Run Codespell
+        run: |
+          codespell \
+          --ignore-words=.codespellrc \
+          --skip="*.min.js,*.json,*.lock,*.bin,*.svg"
+          
+  spellcheck_2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Spell Check with Typos
+        uses: crate-ci/typos@v1.29.5
+        with:
+          files: |
+            **/*
+            !**/*.min.js
+            !**/*.json
+            !**/*.lock
+            !**/*.bin
+            !**/*.svg
+          isolated: true
